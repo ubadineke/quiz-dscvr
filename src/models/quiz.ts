@@ -19,6 +19,8 @@ const quizSchema = new Schema<IQuiz>(
     {
         creator: { type: mongoose.Schema.Types.ObjectId, ref: User, required: true },
         questions: { type: [questionSchema], required: true },
+        pin: { type: Number },
+        active: { type: Boolean, default: false, required: true },
     },
     {
         timestamps: true,

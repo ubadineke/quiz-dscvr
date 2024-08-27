@@ -6,6 +6,8 @@ const User = new UserController();
 const router = Router();
 
 router.use(Auth.findOrCreateUser);
-router.post('/create-quiz', User.createQuiz);
+router.post('/quiz', User.createQuiz);
+router.get('/quizzes', User.getQuizzes);
+router.post('/pin', User.createPin);
 
 export default router;

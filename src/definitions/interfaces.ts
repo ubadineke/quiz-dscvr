@@ -23,6 +23,8 @@ export interface IQuestion extends Document {
 export interface IQuiz extends Document {
     creator: IUser;
     questions: IQuestion[];
+    pin: Number;
+    active: Boolean;
 }
 
 export interface IUser extends Document {
