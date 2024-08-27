@@ -6,11 +6,11 @@ import authRouter from './routes/user.route';
 const app = express();
 
 app.use(express.json());
-
 app.use('/api', authRouter);
-const PORT = env.PORT || 3000;
 
 connectDatabase();
+
+const PORT = env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`);

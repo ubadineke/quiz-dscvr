@@ -4,8 +4,9 @@ import User from '../models/user';
 
 export default class Auth {
     @catchAsync
-    static async findOrCreateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    static async findOrCreateUser(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
         const { uuid, username } = req.body;
+        if (!uuid || !username) return res.status(500).json('Provide uuid and username');
         const user = await User.findOneAndUpdate(
             { uuid },
             { uuid, username },
@@ -16,8 +17,7 @@ export default class Auth {
             }
         );
         req.user = user;
-        res.status(200).json(user);
-        // next();
+        next();
     }
 
     // createQuiz: Base = async (req, res, next) => {};

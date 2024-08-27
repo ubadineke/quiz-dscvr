@@ -21,7 +21,7 @@ export interface IQuestion extends Document {
 }
 
 export interface IQuiz extends Document {
-    owner: ObjectId;
+    creator: IUser;
     questions: IQuestion[];
 }
 
