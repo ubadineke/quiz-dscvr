@@ -7,6 +7,10 @@ import { Request, Response, NextFunction } from 'express';
 import Quiz from '../models/quiz';
 import { catchAsync } from '../definitions/decorators';
 import randomSixDigitNumber from '../utils/randomNumber';
+import redis from '../config/redis';
+import Play from '../models/play';
+import { RedisSearchLanguages } from 'redis';
+import Player from '../models/player';
 
 export default class UserController {
     @catchAsync
@@ -26,8 +30,9 @@ export default class UserController {
     }
 
     @catchAsync
-    async createPin(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
+    public async createPin(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
         const { id } = req.query;
+        if (req.query.pin !== 'yes') return res.status(400).json('provide correct flag');
         const pin = randomSixDigitNumber();
         const quiz = await Quiz.findOne({ creator: req.user, _id: id });
 
@@ -35,6 +40,7 @@ export default class UserController {
 
         if (quiz.pin) {
             if (quiz.pin.toString().length === 6) {
+                redis.set('pin', JSON.stringify(quiz.pin));
                 return res.status(400).json({ message: 'A pin is already set and cannot be updated' });
             } else {
                 console.log("'Existing pin is invalid; it will be changed to a 6-digit number");
@@ -44,7 +50,22 @@ export default class UserController {
 
         quiz.pin = pin;
         await quiz.save({ validateBeforeSave: false });
-
+        await redis.sadd('pins', quiz.pin.valueOf());
         return res.status(200).json({ pin: quiz.pin });
+    }
+
+    @catchAsync
+    public async startQuiz(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
+        const { id } = req.query;
+        if (req.query.start != 'yes') return res.status(400).json('Provide correct flag');
+        const quiz = await Quiz.findOneAndUpdate({ _id: id }, { active: true }, { new: true });
+        if (!quiz) return res.status(404).json('Quiz not found');
+        const { pin } = quiz;
+
+        const list = await redis.lrange(`${quiz.pin}_quiz`, 0, -1);
+        const players = list.map((item) => JSON.parse(item));
+        await Player.insertMany(players, { ordered: false });
+        await redis.del(`${pin}_quiz`);
+        res.status(200).json({ message: 'Game started', count: players.length, players });
     }
 }

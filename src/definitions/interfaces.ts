@@ -31,3 +31,10 @@ export interface IUser extends Document {
     uuid: UUID;
     username: string;
 }
+
+export interface IPlay extends Document {
+    player: ObjectId;
+    quiz: ObjectId;
+    score: Number;
+    position: Number;
+}

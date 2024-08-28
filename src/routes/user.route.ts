@@ -8,6 +8,6 @@ const router = Router();
 router.use(Auth.findOrCreateUser);
 router.post('/quiz', User.createQuiz);
 router.get('/quizzes', User.getQuizzes);
-router.post('/pin', User.createPin);
-
+router.patch('/quiz', User.createPin);
+router.get('/quiz', User.startQuiz);
 export default router;

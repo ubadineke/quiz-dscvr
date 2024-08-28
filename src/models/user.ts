@@ -1,10 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
 import { IUser } from '../definitions/interfaces';
 
-const userSchema = new Schema<IUser>(
+export const userSchema = new Schema<IUser>(
     {
-        uuid: { type: String, required: true },
-        username: { type: String, required: true },
+        uuid: { type: String, required: true, unique: true },
+        username: { type: String, required: true, unique: true },
     },
     {
         timestamps: true,

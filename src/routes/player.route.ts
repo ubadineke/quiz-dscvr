@@ -5,7 +5,7 @@ import PlayerController from '../controllers/player.controller';
 const Player = new PlayerController();
 const router = Router();
 
-router.use(Auth.findOrCreateUser);
+router.use(Auth.findOrCreatePlayer);
 router.post('/join-quiz', Player.joinQuiz);
 
 export default router;

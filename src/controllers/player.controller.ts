@@ -2,22 +2,32 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { catchAsync } from '../definitions/decorators';
-import Redis from 'ioredis';
 import User from '../models/user';
-
-const redis = new Redis();
+import env from '../validations/env';
+import redis from '../config/redis';
+import Quiz from '../models/quiz';
 
 export default class PlayerController {
     @catchAsync
-    public async joinQuiz(req: Request, res: Response, next: NextFunction) {
-        const { pin } = req.query;
-        const { user } = req;
-        await redis.rpush(`${pin}_quiz`, JSON.stringify(user));
-        // console.log('done');
-        const list = await redis.lrange(`${pin}_quiz`, 0, -1);
-        const users = list.map((item) => JSON.parse(item));
+    public async joinQuiz(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
+        const { uuid, username, pin } = req.body;
+        const user = {
+            uuid,
+            username,
+        };
+        const storedPin = await redis.sismember('pins', pin);
+        if (storedPin) {
+            await redis.rpush(`${pin}_quiz`, JSON.stringify(user));
+        } else {
+            const quiz = await Quiz.findOne({ pin });
+            if (quiz) {
+                await redis.rpush(`${pin}_quiz`, JSON.stringify(user));
+            } else {
+                return res.status(400).json('Pin not valid');
+            }
+        }
 
-        res.status(200).json({ message: 'user successfully added', users });
+        return res.status(200).json({ message: 'user successfully added', user });
     }
 
     // @catchAsync
