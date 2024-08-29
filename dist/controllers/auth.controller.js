@@ -27,6 +27,7 @@ const player_1 = __importDefault(require("../models/player"));
 class Auth {
     static findOrCreateUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(1);
             const { uuid, username } = req.body;
             if (!uuid || !username)
                 return res.status(400).json('Provide uuid and username');

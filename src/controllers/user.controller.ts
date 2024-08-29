@@ -64,8 +64,33 @@ export default class UserController {
 
         const list = await redis.lrange(`${quiz.pin}_quiz`, 0, -1);
         const players = list.map((item) => JSON.parse(item));
-        await Player.insertMany(players, { ordered: false });
+        // await Player.insertMany(players, { ordered: false }).finally;
         await redis.del(`${pin}_quiz`);
         res.status(200).json({ message: 'Game started', count: players.length, players });
+    }
+
+    @catchAsync
+    public async endQuiz(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
+        const { pin, uuid } = req.body;
+        if (!uuid || !pin) {
+            return res.status(400).json('Provide complete information');
+        }
+        const quiz = await Quiz.findOne({ pin, creator: req.user });
+        if (!quiz) return res.status(400).json('Quiz does not exist');
+        const playersScores = await redis.hgetall(`${pin}_scores`);
+        console.log(playersScores);
+        const players = Object.entries(playersScores).map(([playerId, score]) => ({
+            player: playerId,
+            quiz: quiz, // Assuming quiz is passed in the request body
+            score: parseInt(score),
+        }));
+        console.log(players);
+        await Play.insertMany(players, { ordered: false });
+        //    await Play.create({
+        //     player: ,
+        //     quiz,
+        //     score
+        //    })
+        res.status(201).json(players);
     }
 }

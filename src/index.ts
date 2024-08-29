@@ -7,8 +7,8 @@ import playerRouter from './routes/player.route';
 const app = express();
 
 app.use(express.json());
-app.use('/api', authRouter);
 app.use('/api', playerRouter);
+app.use('/api', authRouter);
 
 connectDatabase();
 

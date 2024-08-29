@@ -29,7 +29,7 @@ const quiz_1 = __importDefault(require("../models/quiz"));
 const decorators_1 = require("../definitions/decorators");
 const randomNumber_1 = __importDefault(require("../utils/randomNumber"));
 const redis_1 = __importDefault(require("../config/redis"));
-const player_1 = __importDefault(require("../models/player"));
+const play_1 = __importDefault(require("../models/play"));
 class UserController {
     createQuiz(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -84,9 +84,35 @@ class UserController {
             const { pin } = quiz;
             const list = yield redis_1.default.lrange(`${quiz.pin}_quiz`, 0, -1);
             const players = list.map((item) => JSON.parse(item));
-            yield player_1.default.insertMany(players, { ordered: false });
+            // await Player.insertMany(players, { ordered: false }).finally;
             yield redis_1.default.del(`${pin}_quiz`);
             res.status(200).json({ message: 'Game started', count: players.length, players });
+        });
+    }
+    endQuiz(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { pin, uuid } = req.body;
+            if (!uuid || !pin) {
+                return res.status(400).json('Provide complete information');
+            }
+            const quiz = yield quiz_1.default.findOne({ pin, creator: req.user });
+            if (!quiz)
+                return res.status(400).json('Quiz does not exist');
+            const playersScores = yield redis_1.default.hgetall(`${pin}_scores`);
+            console.log(playersScores);
+            const players = Object.entries(playersScores).map(([playerId, score]) => ({
+                player: playerId,
+                quiz: quiz, // Assuming quiz is passed in the request body
+                score: parseInt(score),
+            }));
+            console.log(players);
+            yield play_1.default.insertMany(players, { ordered: false });
+            //    await Play.create({
+            //     player: ,
+            //     quiz,
+            //     score
+            //    })
+            res.status(201).json(players);
         });
     }
 }
@@ -115,3 +141,9 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, Function]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "startQuiz", null);
+__decorate([
+    decorators_1.catchAsync,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Function]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "endQuiz", null);

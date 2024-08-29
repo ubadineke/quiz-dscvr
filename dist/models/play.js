@@ -30,11 +30,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const player_1 = __importDefault(require("./player"));
 const quiz_1 = __importDefault(require("./quiz"));
 const playSchema = new mongoose_1.Schema({
-    player: { type: mongoose_1.default.Schema.Types.ObjectId, ref: player_1.default, required: true },
-    quiz: { type: mongoose_1.default.Schema.Types.ObjectId, ref: quiz_1.default, required: true, unique: true },
+    player: { type: String, required: true, unique: true },
+    quiz: { type: mongoose_1.default.Schema.Types.ObjectId, ref: quiz_1.default, required: true },
     score: { type: Number, default: 0 },
     position: { type: Number },
 });

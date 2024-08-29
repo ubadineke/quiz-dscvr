@@ -13,4 +13,5 @@ router.post('/quiz', User.createQuiz);
 router.get('/quizzes', User.getQuizzes);
 router.patch('/quiz', User.createPin);
 router.get('/quiz', User.startQuiz);
+router.post('/end-quiz', User.endQuiz);
 exports.default = router;

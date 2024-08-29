@@ -33,7 +33,7 @@ export interface IUser extends Document {
 }
 
 export interface IPlay extends Document {
-    player: ObjectId;
+    player: String;
     quiz: ObjectId;
     score: Number;
     position: Number;

@@ -6,6 +6,7 @@ import Player from '../models/player';
 export default class Auth {
     @catchAsync
     static async findOrCreateUser(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
+        console.log(1);
         const { uuid, username } = req.body;
         if (!uuid || !username) return res.status(400).json('Provide uuid and username');
         const user = await User.findOneAndUpdate(

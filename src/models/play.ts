@@ -8,8 +8,8 @@ import Player from './player';
 import Quiz from './quiz';
 
 const playSchema = new Schema<IPlay>({
-    player: { type: mongoose.Schema.Types.ObjectId, ref: Player, required: true },
-    quiz: { type: mongoose.Schema.Types.ObjectId, ref: Quiz, required: true, unique: true },
+    player: { type: String, required: true, unique: true },
+    quiz: { type: mongoose.Schema.Types.ObjectId, ref: Quiz, required: true },
     score: { type: Number, default: 0 },
     position: { type: Number },
 });

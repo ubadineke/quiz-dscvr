@@ -10,8 +10,8 @@ const user_route_1 = __importDefault(require("./routes/user.route"));
 const player_route_1 = __importDefault(require("./routes/player.route"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-app.use('/api', user_route_1.default);
 app.use('/api', player_route_1.default);
+app.use('/api', user_route_1.default);
 (0, db_1.default)();
 const PORT = env_1.default.PORT || 3000;
 app.listen(PORT, () => {

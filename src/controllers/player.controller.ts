@@ -11,6 +11,10 @@ export default class PlayerController {
     @catchAsync
     public async joinQuiz(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
         const { uuid, username, pin } = req.body;
+        console.log(2);
+        if (!uuid || !username || !pin) {
+            return res.status(400).json('Provide complete information');
+        }
         const user = {
             uuid,
             username,
@@ -30,10 +34,15 @@ export default class PlayerController {
         return res.status(200).json({ message: 'user successfully added', user });
     }
 
-    // @catchAsync
-    // public async joinGame(req: Request, res: Response, next: NextFunction){
-    //     const {pin} = req.query;
-    //     const {user} = req;
-    //     const user = await User.create()
-    // }
+    @catchAsync
+    public async updateScore(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
+        const { uuid, score, pin } = req.body;
+        if (!uuid || !score || !pin) {
+            return res.status(400).json('Provide complete information');
+        }
+
+        let playerId: string = uuid;
+        await redis.hset(`${pin}_scores`, playerId, score);
+        return res.status(200).json('Done');
+    }
 }
