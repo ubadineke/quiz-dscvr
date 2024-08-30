@@ -62,7 +62,10 @@
                 const playersList = document.getElementById('playersList');
                 const playerItem = document.createElement('li');
                 playerItem.textContent = username;
+                console.log(username);
                 playersList.appendChild(playerItem);
+                socket.emit('joineddd', { id: 1234 });
+                console.log('Socket emmited');
             });
 
             // Listen for players count updates
