@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Quiz Room</title>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <h1>Admin Quiz Room</h1>
+        <h3>Players in the room:</h3>
+        <ul id="playersList"></ul>
+        <h3 id="playersCount"></h3>
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script>
+            const socket = io(); // Connect to the Socket.IO server
+
+            // Listen for playerJoined event to update the UI
+            socket.on('playerJoined', (username) => {
+                const playersList = document.getElementById('playersList');
+                const playerItem = document.createElement('li');
+                playerItem.textContent = username; // Add username to the list
+                playersList.appendChild(playerItem);
+                updatePlayersCount(); // Update player count after a new player joins
+            });
+
+            // Function to get the current players count
+            function updatePlayersCount() {
+                const pin = /* Get the current pin for the quiz, e.g., from a hidden field or URL parameter */;
+                socket.emit('getPlayersCount', pin); // Emit event to get the count
+            }
+
+            // Listen for players count updates
+            socket.on('updatePlayersCount', (count) => {
+                document.getElementById('playersCount').textContent = `Players in the room: ${count}`;
+            });
+
+            // Get players count on page load
+            updatePlayersCount();
+        </script>
+    </body>
+</html>

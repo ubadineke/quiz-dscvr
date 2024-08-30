@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quiz Client</title>
+    </head>
+    <body>
+        <h1>Join Quiz</h1>
+        <input type="text" id="usernameInput" placeholder="Enter your name" required />
+        <input type="text" id="pinInput" placeholder="Enter quiz PIN" required />
+        <button id="joinButton">Join Quiz</button>
+
+        <h2 id="welcomeMessage" style="display: none"></h2>
+        <h3>Players in the room:</h3>
+        <ul id="playersList"></ul>
+
+        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script>
+            const socket = io(); // Connect to the Socket.IO server
+            console.log('In file', socket);
+
+            // Function to join the quiz
+            function joinQuiz(pin, username) {
+                console.log('workinf');
+                // Make an API request to join the quiz
+                fetch('/api/join-quiz', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uuid: generateUUID(), username, pin }), // Replace generateUUID with your UUID generation method
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log(data);
+                        if (data.message === 'User successfully added') {
+                            // Emit the event to join the quiz room after successful verification
+                            socket.emit('joinQuizRoom', pin, username);
+                            document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
+                            document.getElementById('welcomeMessage').style.display = 'block';
+                        } else {
+                            console.error('Error joining quiz:', data);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+            }
+
+            console.log(document.getElementById('joinButton'));
+            // Example usage
+            document.getElementById('joinButton').addEventListener('click', () => {
+                const pin = document.getElementById('pinInput').value;
+                const username = document.getElementById('usernameInput').value;
+                console.log('Is button working');
+                joinQuiz(pin, username);
+            });
+
+            // Listen for playerJoined event to update the UI
+            socket.on('playerJoined', ({ username, pin }) => {
+                const playersList = document.getElementById('playersList');
+                const playerItem = document.createElement('li');
+                playerItem.textContent = username;
+                playersList.appendChild(playerItem);
+            });
+
+            // Listen for players count updates
+            socket.on('updatePlayersCount', (count) => {
+                document.getElementById('playersCount').textContent = `Players in the room: ${count}`;
+            });
+
+            // Function to generate a UUID (you can use a library for this)
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    const r = (Math.random() * 16) | 0,
+                        v = c === 'x' ? r : (r & 0x3) | 0x8;
+                    return v.toString(16);
+                });
+            }
+        </script>
+    </body>
+</html>

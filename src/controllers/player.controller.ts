@@ -2,12 +2,17 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { catchAsync } from '../definitions/decorators';
-import User from '../models/user';
-import env from '../validations/env';
 import redis from '../config/redis';
 import Quiz from '../models/quiz';
+import { io } from '..';
 
 export default class PlayerController {
+    // private io: Server;
+
+    // constructor(io: Server) {
+    //     this.io = io;
+    // }
+
     @catchAsync
     public async joinQuiz(req: Request, res: Response, next: NextFunction): Promise<Response | undefined> {
         const { uuid, username, pin } = req.body;
@@ -30,8 +35,7 @@ export default class PlayerController {
                 return res.status(400).json('Pin not valid');
             }
         }
-
-        return res.status(200).json({ message: 'user successfully added', user });
+        return res.status(200).json({ message: 'User successfully added', user });
     }
 
     @catchAsync
